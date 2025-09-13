@@ -3,125 +3,118 @@
 ## Repository Outline
 
 ```
-1. README.md - Penjelasan gambaran umum project
-2. P2M3_ilham_maulud_GX.ipynb - Notebook yang berisi data quality validation framework
-3. P2M3_ilham_maulud_ddl.txt - Sekumpulan perintah SQL yang digunakan untuk mendefinisikan struktur database
-4. P2M3_ilham_maulud_DAG_graph.jpg - Alur proses mengolah data
-5. P2M3_ilham_maulud_conceptual.txt - Jawaban dari pertanyaan conceptual
-6. P2M3_ilham_maulud_DAG.py - Workflow yang berisi sekumpulan task yang harus dijalankan secara berurutan
-7. P2M3_ilham_maulud_data_raw.csv - Dataset asli
-8. P2M3_ilham_maulud_data_clean.csv - Dataset yang sudah bersih
-9. Folder image - Berisikan introduction, visualisasi dan kesimpulan
+1. README.md - General overview of the project
+2. P2M3_ilham_maulud_GX.ipynb - Notebook containing the data quality validation framework
+3. P2M3_ilham_maulud_ddl.txt - Set of SQL commands used to define the database structure
+4. P2M3_ilham_maulud_DAG_graph.jpg - Data processing workflow diagram
+5. P2M3_ilham_maulud_conceptual.txt - Answers to conceptual questions
+6. P2M3_ilham_maulud_DAG.py - Workflow containing sequential tasks to be executed
+7. P2M3_ilham_maulud_data_raw.csv - Raw dataset
+8. P2M3_ilham_maulud_data_clean.csv - Cleaned dataset
+9. Image folder - Contains introduction, visualizations, and conclusions
 ```
 
 ## Problem Background
-Perkembangan ritel modern saat ini semakin kompetitif, termasuk di sektor supermarket. Banyak faktor yang memengaruhi performa penjualan, mulai dari lokasi cabang, jenis produk, preferensi pelanggan, hingga promosi yang dijalankan. Analisis data penjualan dapat membantu perusahaan memahami pola belanja konsumen, mengidentifikasi produk yang laris maupun kurang diminati, dan memaksimalkan strategi penjualan di masa depan.
+The modern retail landscape is becoming increasingly competitive, particularly in the supermarket sector. Sales performance is influenced by multiple factors such as branch location, product type, customer preferences, and promotional strategies. Sales data analysis can help businesses understand consumer behavior, identify best-selling and underperforming products, and optimize future sales strategies.
 
-Dataset “Supermarket Sales” berisi data transaksi penjualan dari beberapa cabang supermarket, termasuk informasi mengenai produk, kategori, kuantitas, harga, diskon, dan waktu transaksi. Dataset ini dapat dijadikan dasar untuk melakukan eksplorasi data dan analisis penjualan yang komprehensif.
+The “Supermarket Sales” dataset contains transaction records from multiple supermarket branches, including details on products, categories, quantities, prices, discounts, and timestamps. This dataset serves as a solid foundation for comprehensive data exploration and sales analysis.
 
 
 ## Project Output
-Output dari project ini berupa:
 
 1. Data Pipeline (Airflow DAG)
 
-    - Alur otomatisasi untuk membaca data supermarket, membersihkan data, melakukan transformasi, serta menjalankan validasi menggunakan Great Expectations (GX).
-    - Pipeline ini memastikan data yang digunakan sudah konsisten, valid, dan sesuai dengan standar bisnis.
+- Automated workflow for reading, cleaning, transforming, and validating supermarket data using Great Expectations (GX).
+- Ensures data consistency, validity, and compliance with business standards.
 
 2. Data Validation Report
 
-    - Menggunakan Great Expectations untuk memverifikasi kualitas data.
-    - Validasi dilakukan pada berbagai aspek, seperti nilai unik, rentang nilai (between), tipe data (in type list), dan distribusi statistik (mean/median).
-    - Hasil validasi dapat digunakan sebagai acuan apakah data layak untuk dianalisis lebih lanjut.
+- Data quality verification with Great Expectations.
+- Validation includes uniqueness, value ranges, data types, and statistical distributions.
+- Results determine whether the dataset is suitable for further analysis.
 
 3. Dashboard (Kibana)
 
-    - Visualisasi data penjualan supermarket yang interaktif, meliputi distribusi produk, tren penjualan, segmentasi pelanggan, metode pembayaran, dan analisis cabang.
-    - Dashboard ini memberikan insight bisnis yang mudah dipahami oleh tim marketing, sales, dan manajemen.
+- Interactive visualization of supermarket sales covering product distribution, sales trends, customer segmentation, payment methods, and branch performance.
+- Provides actionable business insights for marketing, sales, and management teams.
 
 4. Business Insights & Recommendations
 
-    - Narasi analisis dari hasil EDA dan dashboard.
-
-    - Insight berfokus pada tren penjualan, perilaku konsumen, serta rekomendasi strategi penjualan dan promosi untuk meningkatkan profitabilitas.
+- Narrative analysis from EDA and dashboards.
+- Insights focus on sales trends, customer behavior, and promotional strategies to improve profitability.
 
 ## Data
-Data yang digunakan dalam proyek ini berasal dari dataset publik Supermarket Sales Dataset yang tersedia di Kaggle. Dataset ini berisi catatan transaksi penjualan dari beberapa cabang supermarket di tiga kota besar.
+The dataset originates from the publicly available Supermarket Sales Dataset on Kaggle, which contains transaction records from multiple branches across three major cities.
 
-Karakteristik Data:
-
-1. Jumlah baris: 1.000 transaksi
-2. Jumlah kolom: 17 kolom
-3. Tidak terdapat missing values pada dataset.
-4. Tipe data terdiri dari kategorikal dan numerik.
+Data Characteristics:
+- Rows: 1,000 transactions
+- Columns: 17 attributes
+- No missing values
+- Mix of categorical and numerical data types
 
 ## Method
-Proyek ini menggunakan pendekatan Exploratory Data Analysis (EDA) dan Data Validation untuk memahami pola penjualan di supermarket serta memastikan kualitas data yang digunakan.
+This project employs Exploratory Data Analysis (EDA) and Data Validation to identify sales patterns and ensure the quality of the dataset.
 
-Metode yang digunakan antara lain:
+Methods used include:
 
 1. Data Cleaning & Preprocessing
 
-    - Menghilangkan inkonsistensi data.
-    - Memastikan tipe data sesuai.
-    - Menambahkan kolom turunan seperti Total (hasil perhitungan Unit Price × Quantity + Tax).
+- Removed data inconsistencies.
+- Validated data types.
+- Added derived columns, e.g., Total (calculated as Unit Price × Quantity + Tax).
 
-2. Data Validation dengan Great Expectations (GX)
+2. Data Validation with Great Expectations (GX)
 
-    - Menetapkan expectations untuk menjaga kualitas data, seperti:
-
-        - Nilai unik pada Invoice ID.
-        - Nilai Customer Type hanya boleh "Member" atau "Normal".
-        - Nilai Total harus ≥ 0.
-        - Kolom Quantity harus berupa integer.
-        - Nilai rata-rata Rating berada di rentang 5–10.
-
-    - Validasi ini dilakukan untuk memastikan dataset bersih dan layak dianalisis.
+- Defined expectations to maintain data quality, such as:
+- Unique values for Invoice ID.
+- Customer Type limited to “Member” or “Normal.”
+- Total ≥ 0.
+- Quantity must be an integer.
+- Average Rating between 5–10.
+- Ensures the dataset is clean and analysis-ready.
 
 3. Exploratory Data Analysis (EDA)
 
-    - Analisis distribusi data.
-    - Analisis tren penjualan berdasarkan waktu.
-    - Analisis perilaku pelanggan berdasarkan tipe dan metode pembayaran.
-    - Visualisasi menggunakan Kibana Dashboard dengan berbagai jenis plot (bar chart, pie chart, line chart, dll).
+- Distribution analysis.
+- Time-based sales trends.
+- Customer behavior by type and payment method.
+- Visualizations using Kibana (bar charts, pie charts, line charts, etc.).
 
-4. Insight & Business Recommendation
+4. Insights & Business Recommendations
 
-    - Hasil EDA digunakan untuk memberikan insight penjualan.
-    - Insight ini mendukung divisi Marketing, Sales, dan Manajemen dalam pengambilan keputusan.
+- EDA results are used to provide actionable business insights.
+- Supports Marketing, Sales, and Management teams in decision-making.
 
 ## Stacks
-Project ini menggunakan kombinasi bahasa pemrograman, tools, dan library Python untuk mendukung proses analisis dan validasi data:
+This project uses a combination of programming languages, tools, and Python libraries to support data analysis and validation:
 
-1. Bahasa Pemrograman
+1. Programming Language
 
-    - Python 3.12
+- Python 3.12
 
-2. Library Python
+2. Python Libraries
 
-    - Pandas → untuk manipulasi dan analisis data.
-    - Great Expectations (GX) → untuk validasi dan menjaga kualitas data.
-    - Numpy → untuk perhitungan numerik dasar.
+- Pandas → Data manipulation and analysis
+- Great Expectations (GX) → Data validation and quality assurance
+- Numpy → Basic numerical computations
 
 3. Tools
 
-    - Apache Airflow → untuk orkestrasi pipeline (ETL, data cleaning, validasi).
-    - Kibana → untuk visualisasi data dan pembuatan dashboard interaktif.
-    - Git & GitHub → untuk version control dan kolaborasi.
+- Apache Airflow → Orchestrating ETL, cleaning, and validation pipelines
+- Kibana → Interactive dashboards and visualizations
+- Git & GitHub → Version control and collaboration
 
 4. Environment
 
-    - Virtual Environment (venv) untuk isolasi dependensi project.
+- Virtual Environment (venv) for dependency isolation
 
 ## Reference
 - Dataset: [Supermarket Sales Dataset](https://www.kaggle.com/datasets/faresashraf1001/supermarket-sales)
 - [Great Expectations](https://docs.greatexpectations.io)
 - [Apache Airflow](https://airflow.apache.org/docs/)
 - [Kibana](https://www.elastic.co/guide/en/kibana)
----
-
-**Referensi tambahan:**
 - [Basic Writing and Syntax on Markdown](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax)
 - [Contoh readme](https://github.com/fahmimnalfrzki/Swift-XRT-Automation)
-- [Another example](https://github.com/sanggusti/final_bangkit) (**Must read**)
+- [Another example](https://github.com/sanggusti/final_bangkit)
+
 - [Additional reference](https://www.freecodecamp.org/news/how-to-write-a-good-readme-file/)

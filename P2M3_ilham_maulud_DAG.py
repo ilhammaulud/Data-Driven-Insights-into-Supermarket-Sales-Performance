@@ -15,7 +15,7 @@ default_args= {
 with DAG(
     dag_id = 'P2M3_ilham_maulud_DAG',
     description='ETL Pipeline: Postgres >> Transform >> Elasticsearch',
-    schedule_interval='10,20,30 9 * * 6', # Setiap hari sabtu, jam 09.10 AM - 09.30 AM, dilakukan per 10 menit 
+    schedule_interval='10,20,30 9 * * 6', # Every Saturday, from 09:10 AM to 09:30 AM, it is done every 10 minutes
     default_args=default_args, 
     catchup=False) as dag:
 
@@ -25,8 +25,7 @@ with DAG(
     @task()
     def extract():
         ''' 
-        Fungsi ini bertujuan untuk extract data dari posgres (tabel_m3) dan save kedalam
-        bentuk raw CSV
+        This function aims to extract data from PostgreSQL (table_m3) and save it in raw CSV format.
         '''
 
         database = "airflow"
@@ -47,55 +46,47 @@ with DAG(
         return raw_path
 
     @task()
-    def preprocess_data(raw_path: str) -> str: #Fungsi -> str digunakan untuk mengembalikan string
+    def preprocess_data(raw_path: str) -> str: # Function -> str is used to return a string
         '''
-        Pada proses preprocess_data, fungsi ini akan melakukan transformasi dan pembersihan dari data 
-        file mentah yang kita punya.
-
-        untuk parameter adalah : raw_path(str): Path/lokasi file CVS mentah dari proses extract
-
-        untuk proses transformasi :
-        1. normalisasi nama kolom
-        2. mengkonversi text ke lowercase, stripping whitespace dan penghapusan simbol
-        3. mengubah format kolom yang tidak sesuai 
-        4. handling missing value dan drop duplicate
-        5. menambahkan kolom total
+        In the preprocess_data process, this function performs transformations and cleaning on the raw data file.
+        For the parameters, they are: raw_path (str): The path/location of the raw CVS file from the extraction process.
+        For the transformation process: 
+        1. Column name normalization 
+        2. Converting text to lowercase, stripping whitespace, and removing symbols 
+        3. Changing inconsistent column formats 
+        4. Handling missing values and dropping duplicates 
+        5. Adding a total column
         '''
         
         df = pd.read_csv(raw_path)
 
-        # 1. Normalisasi nama kolom
         df.columns = (
-            df.columns.str.strip() # Hapus spasi di awal dan di akhir
-            .str.lower() # Lowercase
-            .str.replace(' ', '_') # Mengganti spasi dengan underscore
-            .str.replace(r'[^0-9a-zA-z_]', '', regex=True) # Hapus simbol
+            df.columns.str.strip() 
+            .str.lower()
+            .str.replace(' ', '_') 
+            .str.replace(r'[^0-9a-zA-z_]', '', regex=True)
         )
 
-        # 2. Mengkonversi text ke lowercasem stripping whitespace dan penghapusan simbol yang tidak perlu
+        # Converting text to lowercase, stripping whitespace, and removing unnecessary symbols.
         df['invoice_id'] = df['invoice_id'].str.replace(r'\D', '', regex=True)
 
-        # 3. Mengubah format kolom yang tidak sesuai
-        df['date'] = pd.to_datetime(df['date'], errors='coerce') # Mengubah format menjadi datetime64[ns]
-        df['time'] = pd.to_datetime(df['time'], errors='coerce').dt.time # Mengubah format menjadi time
+        # Changing the format of columns that are not appropriate
+        df['date'] = pd.to_datetime(df['date'], errors='coerce')
+        df['time'] = pd.to_datetime(df['time'], errors='coerce').dt.time
         df['invoice_id'] = df['invoice_id'].astype(int)
         df['quantity'] = df['quantity'].astype('int64')
 
-        # 4. Handilng missing value dan drop duplicate
-        # kolom objek
+        # Handling missing values and drop duplicates
         for col in df.select_dtypes(include='object'):
             df[col].fillna('Unknown', inplace=True)
-        
-        # Kolom numerik
+            
         for col in df.select_dtypes(include='number'):
             df[col].fillna(df[col].mean(), inplace=True)
         
-        # Hapus duplikat
         df.drop_duplicates(inplace=True)
 
-        # 5. menambah kolom total
+        # add a total column
         df['total'] = df['unit_price'] * df['quantity'] + df['tax_5']
-
 
         clean_data = '/tmp/P2M3_ilham_maulud_data_clean.csv'
         df.to_csv(clean_data, index=False)
@@ -105,31 +96,29 @@ with DAG(
     @task()
     def load(clean_data: str):
         '''
-        Fungsi ini memuat data kedalam Elasticsearch dengan konfigurasi yang optimal.
-
-        untuk parameter adalah : clean_data(str): Path/lokasi file CVS clean dari proses preprocess
-
-        untuk proses load data :
-        1. membuat koneksi kedalam Elasticsearch
-        2. membaca file 
-        3. mendefinisikan mapping struktur index
-        4. melakukan bulk insert data
+        This function loads data into Elasticsearch with optimal configuration.
+        For the parameters, they are: clean_data(str): Path/location of the clean CVS file from the preprocessing step.
+        For the data loading process: 
+        1. Establish a connection to Elasticsearch. 
+        2. Read the file. 
+        3. Define the index structure mapping. 
+        4. Perform a bulk insert of the data.
         '''
 
-        # 1. Membuat koneksi kedalam Elasticsearch
+        # 1. Making a connection to Elasticsearch
         es = Elasticsearch(hosts=["http://elasticsearch:9200"]
-                           , timeout = 30 # Timeout 30 detik
-                           , max_retries = 3 # Maksimal percobaan 3 kali
-                           , retry_on_timeout = True # Retry jika timeout
+                           , timeout = 30 # Timeout 30 second
+                           , max_retries = 3 # Maximum 3 attempts
+                           , retry_on_timeout = True # Retry if timeout
                            )
         
         if not es.ping():
             raise ValueError('Elasticsearch gagal terhubung!')
         
-        # 2. Membaca file clean csv
+        # 2. Reading the clean CSV file
         df = pd.read_csv(clean_data)
 
-        # 3. Mendefinisikan mapping index
+        # 3. Defining index mapping
         index_name ='supermarket_sales_data_index'
         if not es.indices.exists(index=index_name):
             es.indices.create(index=index_name)
@@ -145,9 +134,10 @@ with DAG(
 
         helpers.bulk(es, actions)
 
-    # Membentuk dependency antar task
+    # Creating dependencies between tasks
     raw_data = extract()
     clean_data = preprocess_data(raw_data)
     load_data = load(clean_data)
+
 
     start >> raw_data >> clean_data >> load_data >> end

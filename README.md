@@ -4,14 +4,12 @@
 
 ```
 1. README.md - General overview of the project
-2. P2M3_ilham_maulud_GX.ipynb - Notebook containing the data quality validation framework
-3. P2M3_ilham_maulud_ddl.txt - Set of SQL commands used to define the database structure
-4. P2M3_ilham_maulud_DAG_graph.jpg - Data processing workflow diagram
-5. P2M3_ilham_maulud_conceptual.txt - Answers to conceptual questions
-6. P2M3_ilham_maulud_DAG.py - Workflow containing sequential tasks to be executed
-7. P2M3_ilham_maulud_data_raw.csv - Raw dataset
-8. P2M3_ilham_maulud_data_clean.csv - Cleaned dataset
-9. Image folder - Contains introduction, visualizations, and conclusions
+2. GX.ipynb - Notebook containing the data quality validation framework
+3. ddl.txt - Set of SQL commands used to define the database structure
+4. DAG_graph.jpg - Data processing workflow diagram
+5. DAG.py - Workflow containing sequential tasks to be executed
+6. data_raw.csv - Raw dataset
+7. data_clean.csv - Cleaned dataset
 ```
 
 ## Problem Background
@@ -118,3 +116,4 @@ This project uses a combination of programming languages, tools, and Python libr
 - [Another example](https://github.com/sanggusti/final_bangkit)
 
 - [Additional reference](https://www.freecodecamp.org/news/how-to-write-a-good-readme-file/)
+
